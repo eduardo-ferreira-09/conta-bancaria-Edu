@@ -4,10 +4,12 @@ package com.senai.conta_bancaria.interface_ui.controller;
 import com.senai.conta_bancaria.application.service.UsuarioService;
 import com.senai.conta_bancaria.domain.entity.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/usuario")
@@ -16,9 +18,32 @@ public class UsuarioController {
     UsuarioService usuarioService;
 
     @PostMapping
-    public Usuario cadastrarUsuario(@RequestBody Usuario usuario){
-
-            return  usuarioService.cadastrarUsuario(usuario);
+    public ResponseEntity<Usuario> cadastrarUsuario(@RequestBody Usuario usuario) {
+        Usuario usuarioCadastrado = usuarioService.cadastrarUsuario(usuario);
+        return ResponseEntity.created(
+        URI.create("/usuario/" + usuarioCadastrado.getId())
+                ).body(usuarioCadastrado)
     }
+@GetMapping
+public ResponseEntity<List<Usuario>> listarUsuarios() {
+        return ResponseEntity.ok(usuarioService.listarUsuarios());
 
 }
+    @GetMapping("/{id}")
+    public ResponseEntity<Usuario> buscarUsuarioPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(usuarioService.buscarUsuarioPorId(id));
+    }
+
+    @PutMapping
+    public ResponseEntity<Usuario> atualizarUsuario(@PathVariable Long id, @RequestBody Usuario usuario) {
+        return ResponseEntity.ok(usuarioService.atualizarUsuario(id, usuario));
+
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarUsuario(@PathVariable Long id) {
+        usuarioService.deletarUsuario(id);
+        return new ResponseEntity.noContent().build();
+    }
+}
+
+
